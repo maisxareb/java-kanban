@@ -1,4 +1,13 @@
-package PACKAGE_NAME;
+public class Subtask extends Task {
+    private final int epicId;
 
-public class Subtask {
+    public Subtask(String title, String description, int id, Status status, int epicId) {
+        super(title, description, id,
+                status);
+        this.epicId = epicId;
+    }
+
+    public int getEpicId() {
+        return epicId;
+    }
 }
