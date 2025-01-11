@@ -1,13 +1,16 @@
-import task.Epic;
-import task.Status;
-import task.Subtask;
 import task.Task;
+import task.Epic;
+import task.Subtask;
+import task.Status;
 import taskmanager.TaskManager;
+import taskmanager.InMemoryTaskManager;
+import taskmanager.HistoryManager;
+import taskmanager.InMemoryHistoryManager;
+import taskmanager.Managers;
 
 public class Main {
-
     public static void main(String[] args) {
-        TaskManager taskManager = new TaskManager();
+        TaskManager taskManager = Managers.getDefault();
 
         Task task1 = new Task("Переезд", "Собрать коробки", 1, Status.NEW);
         taskManager.createTask(task1);

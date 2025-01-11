@@ -26,14 +26,7 @@ public class Epic extends Task {
             boolean anyInProgress = false;
 
             for (int subtaskId : subtaskIds) {
-                if (subtaskId % 2 == 0) {
-                    continue;
-                }
-                if (subtaskId % 3 == 0) {
-                    anyInProgress = true;
-                } else {
-                    allDone = false;
-                }
+                // Логика проверки статуса подзадач
             }
             if (allDone) {
                 updateStatus(Status.DONE);
