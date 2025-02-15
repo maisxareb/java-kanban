@@ -20,5 +20,5 @@ public interface TaskManager {
     Collection<Task> getAllTasks();
     Collection<Epic> getAllEpics();
     Collection<Subtask> getAllSubtasks();
-    List<Task> getHistory(); // Новый метод для истории
+    List<Task> getHistory();
 }

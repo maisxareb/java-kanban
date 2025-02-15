@@ -1,5 +1,9 @@
+package Test;
+
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import task.Task;
+import task.Status;
 
 class TaskTest {
     @Test

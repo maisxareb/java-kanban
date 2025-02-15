@@ -1,5 +1,14 @@
+package Test;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import task.Task;
+import task.Epic;
+import task.Subtask;
+import task.Status;
+import taskmanager.TaskManager;
+import taskmanager.Managers;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
@@ -47,5 +56,19 @@ class InMemoryTaskManagerTest {
         assertEquals(task.getTitle(), retrievedTask.getTitle());
         assertEquals(task.getDescription(), retrievedTask.getDescription());
         assertEquals(task.getStatus(), retrievedTask.getStatus());
+    }
+
+    @Test
+    void testRemoveSubtaskUpdatesEpic() {
+        Epic epic = new Epic("Epic 1", "Description", 1);
+        Subtask subtask = new Subtask("Subtask 1", "Description", 2, Status.NEW, epic.getId());
+
+        taskManager.createEpic(epic);
+        taskManager.createSubtask(subtask);
+
+        assertEquals(1, epic.getSubtaskIds().size()); // Проверяем, что подзадача добавлена
+
+        taskManager.removeSubtask(subtask.getId());
+        assertTrue(epic.getSubtaskIds().isEmpty()); // Убедимся, что подзадача удалена
     }
 }

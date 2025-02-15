@@ -1,5 +1,12 @@
+package Test;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import taskmanager.HistoryManager;
+import taskmanager.InMemoryHistoryManager;
+import task.Task;
+import task.Status;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
@@ -27,5 +34,18 @@ class InMemoryHistoryManagerTest {
         }
 
         assertEquals(10, historyManager.getHistory().size());
+    }
+
+    @Test
+    void testRemoveUpdatesHistoryCorrectly() {
+        Task task1 = new Task("Task 1", "Description 1", 1, Status.NEW);
+        Task task2 = new Task("Task 2", "Description 2", 2, Status.NEW);
+
+        historyManager.add(task1);
+        historyManager.add(task2);
+
+        historyManager.remove(task1.getId());
+        assertEquals(1, historyManager.getHistory().size());
+        assertEquals(task2, historyManager.getHistory().get(0));
     }
 }
