@@ -1,5 +1,9 @@
-package Test;
+package tests;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.Task;
@@ -8,8 +12,6 @@ import task.Subtask;
 import task.Status;
 import taskmanager.TaskManager;
 import taskmanager.Managers;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
     private TaskManager taskManager;
@@ -52,7 +54,7 @@ class InMemoryTaskManagerTest {
         taskManager.createTask(task);
 
         Task retrievedTask = taskManager.getTask(1);
-        assertNotSame(task, retrievedTask, "Task should not be the same instance as the added task");
+        Assertions.assertNotSame(task, retrievedTask, "Task should not be the same instance as the added task");
         assertEquals(task.getTitle(), retrievedTask.getTitle());
         assertEquals(task.getDescription(), retrievedTask.getDescription());
         assertEquals(task.getStatus(), retrievedTask.getStatus());

@@ -2,6 +2,7 @@ package task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Epic extends Task {
     private List<Integer> subtaskIds = new ArrayList<>();
@@ -26,6 +27,18 @@ public class Epic extends Task {
             boolean anyInProgress = false;
 
             for (int subtaskId : subtaskIds) {
+                Status subtaskStatus = getSubtaskStatus(subtaskId); // Замените на ваш метод получения статуса подзадачи
+
+                if (subtaskStatus == Status.DONE) {
+                    continue;
+                } else if (subtaskStatus == Status.IN_PROGRESS) {
+                    anyInProgress = true;
+                    allDone = false;
+                    break;
+                } else {
+                    allDone = false;
+                    break;
+                }
             }
             if (allDone) {
                 updateStatus(Status.DONE);
@@ -35,5 +48,23 @@ public class Epic extends Task {
                 updateStatus(Status.NEW);
             }
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Epic)) return false;
+        Epic other = (Epic) obj;
+        return this.getId() == other.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
+
+
+    private Status getSubtaskStatus(int subtaskId) {
+        return Status.NEW;
     }
 }

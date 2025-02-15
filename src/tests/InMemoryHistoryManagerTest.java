@@ -1,13 +1,13 @@
-package Test;
+package tests;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import taskmanager.HistoryManager;
 import taskmanager.InMemoryHistoryManager;
 import task.Task;
 import task.Status;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
     private HistoryManager historyManager;
