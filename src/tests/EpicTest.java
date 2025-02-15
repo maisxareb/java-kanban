@@ -1,4 +1,4 @@
-package Test;
+package tests;
 
 import org.junit.jupiter.api.Test;
 import task.Epic;
@@ -6,8 +6,6 @@ import task.Subtask;
 import task.Status;
 import taskmanager.TaskManager;
 import taskmanager.Managers;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTest {
     @Test
