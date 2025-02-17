@@ -5,9 +5,9 @@ import task.Epic;
 import task.Subtask;
 
 import java.util.Collection;
-import java.util.List;
 
 public interface TaskManager {
+
     Task createTask(Task task);
 
     Epic createEpic(Epic epic);
@@ -32,5 +32,5 @@ public interface TaskManager {
 
     Collection<Subtask> getAllSubtasks();
 
-    List<Task> getHistory();
+    Collection<Task> getHistory();
 }

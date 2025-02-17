@@ -9,7 +9,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     private Node head;
     private Node tail;
     private final HashMap<Integer, Node> nodeMap = new HashMap<>();
-    private static final int MAX_HISTORY_SIZE = 10; // Максимальное количество задач в истории
+    private static final int MAX_HISTORY_SIZE = 10;
 
     private static class Node {
         Task task;

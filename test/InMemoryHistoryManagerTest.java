@@ -1,9 +1,11 @@
+package taskmanager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import taskmanager.HistoryManager;
-import taskmanager.InMemoryHistoryManager;
 import task.Task;
 import task.Status;
 
@@ -19,7 +21,6 @@ class InMemoryHistoryManagerTest {
     void testHistoryMaintainsAddedTasks() {
         Task task = new Task("Task for History", "History description", 1, Status.NEW);
         historyManager.add(task);
-
         assertEquals(1, historyManager.getHistory().size());
         assertEquals(task, historyManager.getHistory().get(0));
     }

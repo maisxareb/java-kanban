@@ -15,19 +15,15 @@ public class Subtask extends Task {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Subtask)) return false;
-        Subtask subtask = (Subtask) o;
-        return getId() == subtask.getId() &&  // Сравнение по ID
-                epicId == subtask.epicId &&   // Сравнение по epicId
-                getTitle().equals(subtask.getTitle()) &&
-                getDescription().equals(subtask.getDescription()) &&
-                getStatus() == subtask.getStatus();
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Subtask)) return false;
+        Subtask other = (Subtask) obj;
+        return this.getId() == other.getId();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), epicId, getTitle(), getDescription(), getStatus());
+        return Objects.hash(getId());
     }
 }

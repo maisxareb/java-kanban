@@ -3,6 +3,7 @@ package task;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Collection;
 
 public class Epic extends Task {
     private List<Integer> subtaskIds = new ArrayList<>();
@@ -15,39 +16,53 @@ public class Epic extends Task {
         subtaskIds.add(subtaskId);
     }
 
+    public void removeSubtask(int subtaskId) {
+        subtaskIds.remove((Integer) subtaskId);
+    }
+
     public List<Integer> getSubtaskIds() {
         return subtaskIds;
     }
 
-    public void updateStatus() {
+    public void updateStatus(Collection<Subtask> subtasks) {
         if (subtaskIds.isEmpty()) {
             updateStatus(Status.NEW);
-        } else {
-            boolean allDone = true;
-            boolean anyInProgress = false;
+            return;
+        }
 
-            for (int subtaskId : subtaskIds) {
-                Status subtaskStatus = getSubtaskStatus(subtaskId); // Замените на ваш метод получения статуса подзадачи
+        boolean allDone = true;
+        boolean anyInProgress = false;
 
-                if (subtaskStatus == Status.DONE) {
-                    continue;
-                } else if (subtaskStatus == Status.IN_PROGRESS) {
-                    anyInProgress = true;
-                    allDone = false;
-                    break;
-                } else {
-                    allDone = false;
-                    break;
-                }
-            }
-            if (allDone) {
-                updateStatus(Status.DONE);
-            } else if (anyInProgress) {
-                updateStatus(Status.IN_PROGRESS);
+        for (int subtaskId : subtaskIds) {
+            Status subtaskStatus = getSubtaskStatus(subtasks, subtaskId);
+            if (subtaskStatus == Status.DONE) {
+                continue;
+            } else if (subtaskStatus == Status.IN_PROGRESS) {
+                anyInProgress = true;
+                allDone = false;
+                break;
             } else {
-                updateStatus(Status.NEW);
+                allDone = false;
+                break;
             }
         }
+
+        if (allDone) {
+            updateStatus(Status.DONE);
+        } else if (anyInProgress) {
+            updateStatus(Status.IN_PROGRESS);
+        } else {
+            updateStatus(Status.NEW);
+        }
+    }
+
+    private Status getSubtaskStatus(Collection<Subtask> subtasks, int subtaskId) {
+        for (Subtask subtask : subtasks) {
+            if (subtask.getId() == subtaskId) {
+                return subtask.getStatus();
+            }
+        }
+        return Status.NEW;
     }
 
     @Override
@@ -61,10 +76,5 @@ public class Epic extends Task {
     @Override
     public int hashCode() {
         return Objects.hash(getId());
-    }
-
-
-    private Status getSubtaskStatus(int subtaskId) {
-        return Status.NEW;
     }
 }
