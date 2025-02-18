@@ -66,9 +66,9 @@ class InMemoryTaskManagerTest {
         taskManager.createEpic(epic);
         taskManager.createSubtask(subtask);
 
-        assertEquals(1, epic.getSubtaskIds().size()); // Проверяем, что подзадача добавлена
+        assertEquals(1, epic.getSubtaskIds().size());
 
         taskManager.removeSubtask(subtask.getId());
-        assertTrue(epic.getSubtaskIds().isEmpty()); // Убедимся, что подзадача удалена
+        assertTrue(epic.getSubtaskIds().isEmpty());
     }
 }
