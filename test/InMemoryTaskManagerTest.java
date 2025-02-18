@@ -1,6 +1,15 @@
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import task.Task;
+import task.Epic;
+import task.Subtask;
+import task.Status;
+import taskmanager.TaskManager;
+import taskmanager.Managers;
 
 class InMemoryTaskManagerTest {
     private TaskManager taskManager;
@@ -43,9 +52,23 @@ class InMemoryTaskManagerTest {
         taskManager.createTask(task);
 
         Task retrievedTask = taskManager.getTask(1);
-        assertNotSame(task, retrievedTask, "Task should not be the same instance as the added task");
+        Assertions.assertNotSame(task, retrievedTask, "Task should not be the same instance as the added task");
         assertEquals(task.getTitle(), retrievedTask.getTitle());
         assertEquals(task.getDescription(), retrievedTask.getDescription());
         assertEquals(task.getStatus(), retrievedTask.getStatus());
+    }
+
+    @Test
+    void testRemoveSubtaskUpdatesEpic() {
+        Epic epic = new Epic("Epic 1", "Description", 1);
+        Subtask subtask = new Subtask("Subtask 1", "Description", 2, Status.NEW, epic.getId());
+
+        taskManager.createEpic(epic);
+        taskManager.createSubtask(subtask);
+
+        assertEquals(1, epic.getSubtaskIds().size());
+
+        taskManager.removeSubtask(subtask.getId());
+        assertTrue(epic.getSubtaskIds().isEmpty());
     }
 }

@@ -3,9 +3,6 @@ import task.Epic;
 import task.Subtask;
 import task.Status;
 import taskmanager.TaskManager;
-import taskmanager.InMemoryTaskManager;
-import taskmanager.HistoryManager;
-import taskmanager.InMemoryHistoryManager;
 import taskmanager.Managers;
 
 public class Main {
@@ -42,7 +39,7 @@ public class Main {
         subtask1.updateStatus(Status.DONE);
         System.out.println("Обновлён статус подзадачи '" + subtask1.getTitle() + "' на: " + subtask1.getStatus());
 
-        epic.updateStatus();
+        epic.updateStatus(taskManager.getAllSubtasks());
         System.out.println("Обновлён статус эпика '" + epic.getTitle() + "' на: " + epic.getStatus());
 
         taskManager.removeTask(1);
@@ -51,5 +48,7 @@ public class Main {
 
         System.out.println("Все задачи после удаления: " + taskManager.getAllTasks());
         System.out.println("Все эпики после удаления: " + taskManager.getAllEpics());
+
+        System.out.println("История задач: " + taskManager.getHistory());
     }
 }
