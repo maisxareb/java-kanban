@@ -4,11 +4,13 @@ import task.Task;
 import task.Status;
 import task.Epic;
 import task.Subtask;
+import task.TaskType;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Collection;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
@@ -61,13 +63,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try (FileWriter writer = new FileWriter(file)) {
             writer.write("id,type,name,status,description,epic\n");
             for (Task task : getAllTasks()) {
-                writer.write(toString(task) + "\n");
+                writer.write(task.toString() + "\n");
             }
             for (Epic epic : getAllEpics()) {
-                writer.write(toString(epic) + "\n");
+                writer.write(epic.toString() + "\n");
             }
             for (Subtask subtask : getAllSubtasks()) {
-                writer.write(toString(subtask) + "\n");
+                writer.write(subtask.toString() + "\n");
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка сохранения данных", e);
@@ -80,9 +82,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             List<String> lines = Files.readAllLines(file.toPath());
             for (String line : lines.subList(1, lines.size())) {
                 Task task = fromString(line);
-                if (task instanceof Epic) {
+                if (task.getType() == TaskType.EPIC) {
                     manager.createEpic((Epic) task);
-                } else if (task instanceof Subtask) {
+                } else if (task.getType() == TaskType.SUBTASK) {
                     manager.createSubtask((Subtask) task);
                 } else {
                     manager.createTask(task);
@@ -94,51 +96,21 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return manager;
     }
 
-    private String toString(Task task) {
-        if (task instanceof Subtask) {
-            Subtask subtask = (Subtask) task;
-            return String.join(",",
-                    String.valueOf(subtask.getId()),
-                    "SUBTASK",
-                    subtask.getTitle(),
-                    subtask.getStatus().name(),
-                    subtask.getDescription(),
-                    String.valueOf(subtask.getEpicId()));
-        } else if (task instanceof Epic) {
-            Epic epic = (Epic) task;
-            return String.join(",",
-                    String.valueOf(epic.getId()),
-                    "EPIC",
-                    epic.getTitle(),
-                    epic.getStatus().name(),
-                    epic.getDescription(),
-                    "");
-        } else {
-            return String.join(",",
-                    String.valueOf(task.getId()),
-                    "TASK",
-                    task.getTitle(),
-                    task.getStatus().name(),
-                    task.getDescription(),
-                    "");
-        }
-    }
-
     private static Task fromString(String value) {
         String[] parts = value.split(",");
         int id = Integer.parseInt(parts[0]);
-        String type = parts[1];
+        TaskType type = TaskType.valueOf(parts[1]);
         String title = parts[2];
         Status status = Status.valueOf(parts[3]);
         String description = parts[4];
         int epicId = parts.length > 5 ? Integer.parseInt(parts[5]) : 0;
 
         switch (type) {
-            case "TASK":
+            case TASK:
                 return new Task(title, description, id, status);
-            case "EPIC":
+            case EPIC:
                 return new Epic(title, description, id);
-            case "SUBTASK":
+            case SUBTASK:
                 return new Subtask(title, description, id, status, epicId);
             default:
                 throw new IllegalArgumentException("Unknown type: " + type);

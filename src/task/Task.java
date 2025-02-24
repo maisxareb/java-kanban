@@ -35,6 +35,21 @@ public class Task {
         this.status = status;
     }
 
+    public TaskType getType() {
+        return TaskType.TASK;
+    }
+
+    @Override
+    public String toString() {
+        return String.join(",",
+                String.valueOf(id),
+                getType().name(),
+                title,
+                status.name(),
+                description,
+                "");
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
