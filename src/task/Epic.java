@@ -66,6 +66,22 @@ public class Epic extends Task {
     }
 
     @Override
+    public TaskType getType() {
+        return TaskType.EPIC;
+    }
+
+    @Override
+    public String toString() {
+        return String.join(",",
+                String.valueOf(getId()),
+                getType().name(),
+                getTitle(),
+                getStatus().name(),
+                getDescription(),
+                "");
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (!(obj instanceof Epic)) return false;
