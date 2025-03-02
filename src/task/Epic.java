@@ -1,68 +1,60 @@
 package task;
 
+import taskmanager.TaskManager;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Collection;
 
 public class Epic extends Task {
     private List<Integer> subtaskIds = new ArrayList<>();
+    private final TaskManager taskManager;
 
-    public Epic(String title, String description, int id) {
-        super(title, description, id, Status.NEW);
+    public Epic(String title, String description, int id, TaskManager taskManager) {
+        super(title, description, id, Status.NEW, Duration.ZERO, null);
+        this.taskManager = taskManager;
     }
 
     public void addSubtask(int subtaskId) {
         subtaskIds.add(subtaskId);
+        updateEpicData();
     }
 
     public void removeSubtask(int subtaskId) {
         subtaskIds.remove((Integer) subtaskId);
+        updateEpicData();
     }
 
     public List<Integer> getSubtaskIds() {
         return subtaskIds;
     }
 
-    public void updateStatus(Collection<Subtask> subtasks) {
-        if (subtaskIds.isEmpty()) {
-            updateStatus(Status.NEW);
-            return;
-        }
-
-        boolean allDone = true;
-        boolean anyInProgress = false;
+    public void updateEpicData() {
+        Duration totalDuration = Duration.ZERO;
+        LocalDateTime earliestStartTime = null;
+        LocalDateTime latestEndTime = null;
 
         for (int subtaskId : subtaskIds) {
-            Status subtaskStatus = getSubtaskStatus(subtasks, subtaskId);
-            if (subtaskStatus == Status.DONE) {
-                continue;
-            } else if (subtaskStatus == Status.IN_PROGRESS) {
-                anyInProgress = true;
-                allDone = false;
-                break;
-            } else {
-                allDone = false;
-                break;
+            Subtask subtask = taskManager.getSubtaskById(subtaskId);
+            totalDuration = totalDuration.plus(subtask.getDuration());
+            LocalDateTime subtaskStartTime = subtask.getStartTime();
+            if (earliestStartTime == null || (subtaskStartTime != null && subtaskStartTime.isBefore(earliestStartTime))) {
+                earliestStartTime = subtaskStartTime;
+            }
+            LocalDateTime subtaskEndTime = subtask.getEndTime();
+            if (latestEndTime == null || (subtaskEndTime != null && subtaskEndTime.isAfter(latestEndTime))) {
+                latestEndTime = subtaskEndTime;
             }
         }
 
-        if (allDone) {
-            updateStatus(Status.DONE);
-        } else if (anyInProgress) {
-            updateStatus(Status.IN_PROGRESS);
-        } else {
-            updateStatus(Status.NEW);
-        }
+        setDuration(totalDuration);
+        setStartTime(earliestStartTime);
     }
 
-    private Status getSubtaskStatus(Collection<Subtask> subtasks, int subtaskId) {
-        for (Subtask subtask : subtasks) {
-            if (subtask.getId() == subtaskId) {
-                return subtask.getStatus();
-            }
-        }
-        return Status.NEW;
+    @Override
+    public LocalDateTime getEndTime() {
+        return getStartTime() != null ? getStartTime().plus(getDuration()) : null;
     }
 
     @Override
@@ -78,7 +70,9 @@ public class Epic extends Task {
                 getTitle(),
                 getStatus().name(),
                 getDescription(),
-                "");
+                "",
+                String.valueOf(getDuration().toMinutes()),
+                getStartTime() != null ? getStartTime().toString() : "");
     }
 
     @Override

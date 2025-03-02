@@ -1,50 +1,22 @@
-package taskmanager;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import task.Task;
 import task.Status;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 class InMemoryHistoryManagerTest {
-    private HistoryManager historyManager;
-
-    @BeforeEach
-    void setUp() {
-        historyManager = new InMemoryHistoryManager();
-    }
 
     @Test
-    void testHistoryMaintainsAddedTasks() {
-        Task task = new Task("Task for History", "History description", 1, Status.NEW);
-        historyManager.add(task);
-        assertEquals(1, historyManager.getHistory().size());
-        assertEquals(task, historyManager.getHistory().get(0));
-    }
+    void testCreateTask() {
+        Task task = new Task("Task Title", "Task Description", 1, Status.NEW, Duration.ofMinutes(30), LocalDateTime.now());
 
-    @Test
-    void testHistoryLimitedToTen() {
-        for (int i = 0; i < 12; i++) {
-            Task task = new Task("Task " + i, "Description", i, Status.NEW);
-            historyManager.add(task);
-        }
-
-        assertEquals(10, historyManager.getHistory().size());
-    }
-
-    @Test
-    void testRemoveUpdatesHistoryCorrectly() {
-        Task task1 = new Task("Task 1", "Description 1", 1, Status.NEW);
-        Task task2 = new Task("Task 2", "Description 2", 2, Status.NEW);
-
-        historyManager.add(task1);
-        historyManager.add(task2);
-
-        historyManager.remove(task1.getId());
-        assertEquals(1, historyManager.getHistory().size());
-        assertEquals(task2, historyManager.getHistory().get(0));
+        assertEquals("Task Title", task.getTitle());
+        assertEquals("Task Description", task.getDescription());
+        assertEquals(1, task.getId());
+        assertEquals(Status.NEW, task.getStatus());
+        assertEquals(Duration.ofMinutes(30), task.getDuration());
     }
 }

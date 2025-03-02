@@ -2,31 +2,30 @@ import task.Task;
 import task.Epic;
 import task.Subtask;
 import task.Status;
+import taskmanager.FileBackedTaskManager;
 import taskmanager.TaskManager;
 import taskmanager.Managers;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) {
         TaskManager taskManager = Managers.getDefault();
 
-        Task task1 = new Task("Переезд", "Собрать коробки", 1, Status.NEW);
-        taskManager.createTask(task1);
+        Task task1 = taskManager.createTask("Переезд", "Собрать коробки", Duration.ofMinutes(120), LocalDateTime.now());
         System.out.println("Создана задача: " + task1.getTitle() + ", Статус: " + task1.getStatus());
 
-        Task task2 = new Task("Курить мебель", "Купить стул и стулья", 2, Status.NEW);
-        taskManager.createTask(task2);
+        Task task2 = taskManager.createTask("Курить мебель", "Купить стул и стулья", Duration.ofMinutes(90), LocalDateTime.now().plusHours(1));
         System.out.println("Создана задача: " + task2.getTitle() + ", статус: " + task2.getStatus());
 
-        Epic epic = new Epic("Организация праздника", "Подготовить к празднику", 3);
-        taskManager.createEpic(epic);
+        Epic epic = taskManager.createEpic("Организация праздника", "Подготовить к празднику");
         System.out.println("Создан эпик: " + epic.getTitle());
 
-        Subtask subtask1 = new Subtask("Пригласить гостей", "Составить список", 4, Status.NEW, 3);
-        taskManager.createSubtask(subtask1);
+        Subtask subtask1 = taskManager.createSubtask("Пригласить гостей", "Составить список", epic.getId(), Duration.ofMinutes(30), LocalDateTime.now().plusDays(1));
         System.out.println("Создана подзадача: " + subtask1.getTitle() + ", статус: " + subtask1.getStatus());
 
-        Subtask subtask2 = new Subtask("Закупить еду", "Купить закуски", 5, Status.NEW, 3);
-        taskManager.createSubtask(subtask2);
+        Subtask subtask2 = taskManager.createSubtask("Закупить еду", "Купить закуски", epic.getId(), Duration.ofMinutes(45), LocalDateTime.now().plusDays(1));
         System.out.println("Создана подзадача: " + subtask2.getTitle() + ", статус: " + subtask2.getStatus());
 
         System.out.println("\nВсе задачи: " + taskManager.getAllTasks());
@@ -39,16 +38,14 @@ public class Main {
         subtask1.updateStatus(Status.DONE);
         System.out.println("Обновлён статус подзадачи '" + subtask1.getTitle() + "' на: " + subtask1.getStatus());
 
-        epic.updateStatus(taskManager.getAllSubtasks());
+        epic.updateEpicData();
         System.out.println("Обновлён статус эпика '" + epic.getTitle() + "' на: " + epic.getStatus());
 
         taskManager.removeTask(1);
-        taskManager.removeEpic(3);
-        System.out.println("\nУдалены задачи с ID 1 и эпик с ID 3.");
+        taskManager.removeEpic(epic.getId());
+        System.out.println("\nУдалены задачи с ID 1 и эпик с ID " + epic.getId() + ".");
 
         System.out.println("Все задачи после удаления: " + taskManager.getAllTasks());
         System.out.println("Все эпики после удаления: " + taskManager.getAllEpics());
-
-        System.out.println("История задач: " + taskManager.getHistory());
     }
 }

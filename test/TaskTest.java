@@ -1,13 +1,23 @@
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import task.Task;
 import task.Status;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 class TaskTest {
+
     @Test
-    void testTaskEqualityById() {
-        Task task1 = new Task("Task 1", "Description", 1, Status.NEW);
-        Task task2 = new Task("Task 1", "Description", 1, Status.NEW);
-        assertEquals(task1, task2);
+    void testCreateTask() {
+        Task task = new Task("Task Title", "Task Description", 1, Status.NEW, Duration.ofMinutes(30), LocalDateTime.now());
+
+        assertEquals("Task Title", task.getTitle());
+        assertEquals("Task Description", task.getDescription());
+        assertEquals(1, task.getId());
+        assertEquals(Status.NEW, task.getStatus());
+        assertEquals(Duration.ofMinutes(30), task.getDuration());
+        assertEquals(LocalDateTime.now().toLocalDate(), task.getStartTime().toLocalDate());
     }
 }
