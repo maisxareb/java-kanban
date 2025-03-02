@@ -17,17 +17,17 @@ public class Epic extends Task {
     }
 
     public void addSubtask(int subtaskId) {
-        subtaskIds.add(subtaskId);
+        this.subtaskIds.add(subtaskId);
         updateEpicData();
     }
 
     public void removeSubtask(int subtaskId) {
-        subtaskIds.remove((Integer) subtaskId);
+        this.subtaskIds.remove((Integer) subtaskId);
         updateEpicData();
     }
 
     public List<Integer> getSubtaskIds() {
-        return subtaskIds;
+        return this.subtaskIds;
     }
 
     public void updateEpicData() {
@@ -35,7 +35,7 @@ public class Epic extends Task {
         LocalDateTime earliestStartTime = null;
         LocalDateTime latestEndTime = null;
 
-        for (int subtaskId : subtaskIds) {
+        for (int subtaskId : this.subtaskIds) {
             Subtask subtask = taskManager.getSubtaskById(subtaskId);
             totalDuration = totalDuration.plus(subtask.getDuration());
             LocalDateTime subtaskStartTime = subtask.getStartTime();

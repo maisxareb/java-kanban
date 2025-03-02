@@ -4,6 +4,7 @@ import task.Task;
 import task.Epic;
 import task.Subtask;
 import task.Status;
+import task.TaskType;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -36,16 +37,16 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
                 if (parts.length < 7) continue;
 
-                String taskType = parts[1];
+                TaskType taskType = TaskType.valueOf(parts[1]);
                 System.out.println("Loading line: " + line);
                 switch (taskType) {
-                    case "TASK":
+                    case TASK:
                         addTaskFromLine(parts);
                         break;
-                    case "EPIC":
+                    case EPIC:
                         addEpicFromLine(parts);
                         break;
-                    case "SUBTASK":
+                    case SUBTASK:
                         addSubtaskFromLine(parts);
                         break;
                     default:
@@ -98,7 +99,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
-
     private void addSubtaskFromLine(String[] parts) {
         try {
             String title = parts[2];
@@ -148,7 +148,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 task.getDescription(),
                 task.getStatus().name(),
                 String.valueOf(task.getDuration().toMinutes()),
-                task.getStartTime() != null ? task.getStartTime().toString() : "null"  // Корректно обработать startTime
+                task.getStartTime() != null ? task.getStartTime().toString() : "null"
         );
     }
 
@@ -159,7 +159,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 epic.getTitle(),
                 epic.getDescription(),
                 epic.getStatus().name(),
-                epic.getDuration() != null ? String.valueOf(epic.getDuration().toMinutes()) : "0", // Изменено, чтобы избежать NullPointerException
+                epic.getDuration() != null ? String.valueOf(epic.getDuration().toMinutes()) : "0",
                 epic.getStartTime() != null ? epic.getStartTime().toString() : "null"
         );
     }

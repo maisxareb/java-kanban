@@ -22,11 +22,11 @@ public class Task {
     }
 
     public LocalDateTime getEndTime() {
-        return startTime != null ? startTime.plus(duration) : null;
+        return this.startTime != null ? this.startTime.plus(this.duration) : null;
     }
 
     public Duration getDuration() {
-        return duration;
+        return this.duration;
     }
 
     public void setDuration(Duration duration) {
@@ -34,7 +34,7 @@ public class Task {
     }
 
     public LocalDateTime getStartTime() {
-        return startTime;
+        return this.startTime;
     }
 
     public void setStartTime(LocalDateTime startTime) {
@@ -42,19 +42,19 @@ public class Task {
     }
 
     public String getTitle() {
-        return title;
+        return this.title;
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     public int getId() {
-        return id;
+        return this.id;
     }
 
     public Status getStatus() {
-        return status;
+        return this.status;
     }
 
     public void updateStatus(Status status) {
@@ -68,13 +68,13 @@ public class Task {
     @Override
     public String toString() {
         return String.join(",",
-                String.valueOf(id),
+                String.valueOf(this.id),
                 getType().name(),
-                title,
-                status.name(),
-                description,
-                String.valueOf(duration.toMinutes()),
-                startTime != null ? startTime.toString() : "");
+                this.title,
+                this.status.name(),
+                this.description,
+                String.valueOf(this.duration.toMinutes()),
+                this.startTime != null ? this.startTime.toString() : "");
     }
 
     @Override
@@ -82,11 +82,11 @@ public class Task {
         if (this == o) return true;
         if (!(o instanceof Task)) return false;
         Task task = (Task) o;
-        return id == task.id;
+        return this.id == task.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(this.id);
     }
 }
