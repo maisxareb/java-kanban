@@ -1,118 +1,179 @@
 package taskmanager;
 
 import task.Task;
-import task.Status;
 import task.Epic;
 import task.Subtask;
+import task.Status;
 import task.TaskType;
-import java.io.File;
-import java.io.FileWriter;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.List;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
-    private final File file;
 
-    public FileBackedTaskManager(File file) {
-        this.file = file;
+    private final Path filePath;
+
+    public FileBackedTaskManager(String fileName) {
+        this.filePath = Path.of(fileName);
+        loadTasks();
     }
 
-    @Override
-    public Task createTask(Task task) {
-        Task newTask = super.createTask(task);
-        save();
-        return newTask;
+    public static FileBackedTaskManager loadFromFile(String fileName) {
+        return new FileBackedTaskManager(fileName);
     }
 
-    @Override
-    public Epic createEpic(Epic epic) {
-        Epic newEpic = super.createEpic(epic);
-        save();
-        return newEpic;
-    }
+    private void loadTasks() {
+        try (BufferedReader reader = Files.newBufferedReader(filePath)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+                String[] parts = line.split(",");
 
-    @Override
-    public Subtask createSubtask(Subtask subtask) {
-        Subtask newSubtask = super.createSubtask(subtask);
-        save();
-        return newSubtask;
-    }
+                if (parts.length < 7) continue;
 
-    @Override
-    public void removeTask(int id) {
-        super.removeTask(id);
-        save();
-    }
-
-    @Override
-    public void removeEpic(int id) {
-        super.removeEpic(id);
-        save();
-    }
-
-    @Override
-    public void removeSubtask(int id) {
-        super.removeSubtask(id);
-        save();
-    }
-
-    public void save() {
-        try (FileWriter writer = new FileWriter(file)) {
-            writer.write("id,type,name,status,description,epic\n");
-            for (Task task : getAllTasks()) {
-                writer.write(task.toString() + "\n");
-            }
-            for (Epic epic : getAllEpics()) {
-                writer.write(epic.toString() + "\n");
-            }
-            for (Subtask subtask : getAllSubtasks()) {
-                writer.write(subtask.toString() + "\n");
-            }
-        } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка сохранения данных", e);
-        }
-    }
-
-    public static FileBackedTaskManager loadFromFile(File file) {
-        FileBackedTaskManager manager = new FileBackedTaskManager(file);
-        try {
-            List<String> lines = Files.readAllLines(file.toPath());
-            for (String line : lines.subList(1, lines.size())) {
-                Task task = fromString(line);
-                if (task.getType() == TaskType.EPIC) {
-                    manager.createEpic((Epic) task);
-                } else if (task.getType() == TaskType.SUBTASK) {
-                    manager.createSubtask((Subtask) task);
-                } else {
-                    manager.createTask(task);
+                TaskType taskType = TaskType.valueOf(parts[1]);
+                System.out.println("Loading line: " + line);
+                switch (taskType) {
+                    case TASK:
+                        addTaskFromLine(parts);
+                        break;
+                    case EPIC:
+                        addEpicFromLine(parts);
+                        break;
+                    case SUBTASK:
+                        addSubtaskFromLine(parts);
+                        break;
+                    default:
+                        System.err.println("Unknown task type: " + taskType);
                 }
             }
         } catch (IOException e) {
-            throw new ManagerLoadException("Ошибка загрузки данных", e);
+            System.err.println("Error loading tasks: " + e.getMessage());
         }
-        return manager;
     }
 
-    private static Task fromString(String value) {
-        String[] parts = value.split(",");
-        int id = Integer.parseInt(parts[0]);
-        TaskType type = TaskType.valueOf(parts[1]);
-        String title = parts[2];
-        Status status = Status.valueOf(parts[3]);
-        String description = parts[4];
-        int epicId = parts.length > 5 ? Integer.parseInt(parts[5]) : 0;
+    private void addTaskFromLine(String[] parts) {
+        try {
+            String title = parts[2];
+            String description = parts[3];
+            int id = Integer.parseInt(parts[0]);
+            Status status = Status.valueOf(parts[4]);
+            Duration duration = Duration.ofMinutes(Long.parseLong(parts[5]));
+            LocalDateTime startTime = "null".equals(parts[6]) ? null : LocalDateTime.parse(parts[6]);
 
-        switch (type) {
-            case TASK:
-                return new Task(title, description, id, status);
-            case EPIC:
-                return new Epic(title, description, id);
-            case SUBTASK:
-                return new Subtask(title, description, id, status, epicId);
-            default:
-                throw new IllegalArgumentException("Unknown type: " + type);
+            Task newTask = new Task(title, description, id, status, duration, startTime);
+            tasks.put(id, newTask);
+        } catch (NumberFormatException e) {
+            System.err.println("Number format error while parsing task from line: " + String.join(",", parts));
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.err.println("Array index out of bounds while parsing task from line: " + String.join(",", parts));
+        } catch (IllegalArgumentException e) {
+            System.err.println("Illegal argument error while parsing task from line: " + String.join(",", parts));
         }
+    }
+
+    private void addEpicFromLine(String[] parts) {
+        try {
+            String title = parts[2];
+            String description = parts[3];
+            int id = Integer.parseInt(parts[0]);
+
+            if (epics.containsKey(id)) {
+                System.err.println("Epic with ID " + id + " already exists, skipping...");
+                return;
+            }
+
+            Epic newEpic = createEpic(title, description);
+            epics.put(id, newEpic);
+            System.out.println("Added Epic: " + newEpic);
+        } catch (NumberFormatException e) {
+            System.err.println("Number format error while parsing epic from line: " + String.join(",", parts));
+        } catch (IllegalArgumentException e) {
+            System.err.println("Illegal argument error while parsing epic from line: " + String.join(",", parts));
+        }
+    }
+
+    private void addSubtaskFromLine(String[] parts) {
+        try {
+            String title = parts[2];
+            String description = parts[3];
+            int epicId = Integer.parseInt(parts[4]);
+            int id = Integer.parseInt(parts[0]);
+            Duration duration = Duration.ofMinutes(Long.parseLong(parts[6]));
+            LocalDateTime startTime = "null".equals(parts[7]) ? null : LocalDateTime.parse(parts[7]);
+            Subtask newSubtask = new Subtask(title, description, id, Status.valueOf(parts[5]), epicId, duration, startTime);
+            subtasks.put(id, newSubtask);
+            Epic epic = epics.get(epicId);
+            if (epic != null) {
+                epic.addSubtask(id);
+                epic.updateEpicData();
+            }
+        } catch (NumberFormatException e) {
+            System.err.println("Number format error while parsing subtask from line: " + String.join(",", parts));
+        } catch (IllegalArgumentException e) {
+            System.err.println("Illegal argument error while parsing subtask from line: " + String.join(",", parts));
+        }
+    }
+
+    public void save() {
+        try (BufferedWriter writer = Files.newBufferedWriter(filePath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            for (Task task : getAllTasks()) {
+                writer.write(taskToString(task));
+                writer.newLine();
+            }
+            for (Epic epic : getAllEpics()) {
+                writer.write(epicToString(epic));
+                writer.newLine();
+            }
+            for (Subtask subtask : getAllSubtasks()) {
+                writer.write(subtaskToString(subtask));
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Error saving tasks: " + e.getMessage());
+        }
+    }
+
+    private String taskToString(Task task) {
+        return String.join(",",
+                String.valueOf(task.getId()),
+                "TASK",
+                task.getTitle(),
+                task.getDescription(),
+                task.getStatus().name(),
+                String.valueOf(task.getDuration().toMinutes()),
+                task.getStartTime() != null ? task.getStartTime().toString() : "null"
+        );
+    }
+
+    private String epicToString(Epic epic) {
+        return String.join(",",
+                String.valueOf(epic.getId()),
+                "EPIC",
+                epic.getTitle(),
+                epic.getDescription(),
+                epic.getStatus().name(),
+                epic.getDuration() != null ? String.valueOf(epic.getDuration().toMinutes()) : "0",
+                epic.getStartTime() != null ? epic.getStartTime().toString() : "null"
+        );
+    }
+
+    private String subtaskToString(Subtask subtask) {
+        return String.join(",",
+                String.valueOf(subtask.getId()),
+                "SUBTASK",
+                subtask.getTitle(),
+                subtask.getDescription(),
+                String.valueOf(subtask.getEpicId()),
+                subtask.getStatus().name(),
+                String.valueOf(subtask.getDuration().toMinutes()),
+                subtask.getStartTime() != null ? subtask.getStartTime().toString() : "null"
+        );
     }
 }
-// Если ревью прошло успешно, я же должен замержить эту ветку с мейном?

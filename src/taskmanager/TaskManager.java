@@ -1,24 +1,26 @@
 package taskmanager;
 
-import task.Task;
 import task.Epic;
 import task.Subtask;
-
+import task.Task;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 public interface TaskManager {
+    Task createTask(String title, String description, Duration duration, LocalDateTime startTime);
 
-    Task createTask(Task task);
+    Epic createEpic(String title, String description);
 
-    Epic createEpic(Epic epic);
-
-    Subtask createSubtask(Subtask subtask);
+    Subtask createSubtask(String title, String description, int epicId, Duration duration, LocalDateTime startTime);
 
     Task getTask(int id);
 
     Epic getEpic(int id);
 
     Subtask getSubtask(int id);
+
+    Subtask getSubtaskById(int subtaskId);
 
     void removeTask(int id);
 
@@ -31,6 +33,8 @@ public interface TaskManager {
     Collection<Epic> getAllEpics();
 
     Collection<Subtask> getAllSubtasks();
+
+    Collection<Task> getPrioritizedTasks();
 
     Collection<Task> getHistory();
 }

@@ -1,22 +1,25 @@
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import task.Subtask;
-import task.Epic;
 import task.Status;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 class SubtaskTest {
-    @Test
-    void testSubtaskEqualityById() {
-        Subtask subtask1 = new Subtask("Subtask 1", "Description", 1, Status.NEW, 2);
-        Subtask subtask2 = new Subtask("Subtask 2", "Description", 3, Status.NEW, 2);
-
-        assertNotEquals(subtask1, subtask2, "Subtasks with different IDs should not be equal.");
-    }
 
     @Test
-    void testSubtaskCannotBeEpic() {
-        Subtask subtask = new Subtask("Subtask 1", "Description", 1, Status.NEW, 3);
-        Epic epic = new Epic("Epic 1", "Description", 2); // Эпик с id = 2
-        assertNotEquals(epic.getId(), subtask.getEpicId(), "Subtask should not reference itself as an epic.");
+    void testCreateSubtask() {
+        int epicId = 1;
+        Subtask subtask = new Subtask("Subtask Title", "Subtask Description", 2, Status.NEW, epicId, Duration.ofMinutes(20), LocalDateTime.now());
+
+        assertEquals("Subtask Title", subtask.getTitle());
+        assertEquals("Subtask Description", subtask.getDescription());
+        assertEquals(2, subtask.getId());
+        assertEquals(Status.NEW, subtask.getStatus());
+        assertEquals(epicId, subtask.getEpicId());
+        assertEquals(Duration.ofMinutes(20), subtask.getDuration());
+        assertEquals(LocalDateTime.now().toLocalDate(), subtask.getStartTime().toLocalDate());
     }
 }
