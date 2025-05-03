@@ -55,7 +55,7 @@ public class Main {
 
             // Можно оставить сервер запущенным, пока не остановите
             // или завершить работу явно
-            server.stop();
+            // server.stop();
 
         } catch (IOException e) {
             e.printStackTrace();
