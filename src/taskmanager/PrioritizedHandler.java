@@ -2,9 +2,10 @@ package taskmanager;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.google.gson.Gson;
+import task.Task;
+
 import java.io.IOException;
 import java.util.Collection;
-import task.Task;
 
 public class PrioritizedHandler extends BaseHttpHandler {
     private final TaskManager manager;
@@ -17,12 +18,17 @@ public class PrioritizedHandler extends BaseHttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try {
-            if ("GET".equals(exchange.getRequestMethod())) {
-                Collection<Task> history = manager.getHistory();
-                sendText(exchange, gson.toJson(history));
+            HttpMethod method = HttpMethod.valueOf(exchange.getRequestMethod());
+            if (method == HttpMethod.GET) {
+                Collection<Task> prioritizedTasks = manager.getPrioritizedTasks(); // предполагается такой метод
+                sendText(exchange, gson.toJson(prioritizedTasks));
             } else {
                 exchange.sendResponseHeaders(405, -1);
+                exchange.close();
             }
+        } catch (IllegalArgumentException e) {
+            exchange.sendResponseHeaders(405, -1);
+            exchange.close();
         } catch (Exception e) {
             sendError(exchange);
         }

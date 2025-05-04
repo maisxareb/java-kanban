@@ -1,10 +1,11 @@
 package taskmanager;
 
-import task.Task;
-import java.util.Collection;
 import com.sun.net.httpserver.HttpExchange;
 import com.google.gson.Gson;
+import task.Task;
+
 import java.io.IOException;
+import java.util.Collection;
 
 public class HistoryHandler extends BaseHttpHandler {
     private final TaskManager manager;
@@ -17,13 +18,17 @@ public class HistoryHandler extends BaseHttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try {
-            if ("GET".equals(exchange.getRequestMethod())) {
+            HttpMethod method = HttpMethod.valueOf(exchange.getRequestMethod());
+            if (method == HttpMethod.GET) {
                 Collection<Task> history = manager.getHistory();
                 sendText(exchange, gson.toJson(history));
             } else {
                 exchange.sendResponseHeaders(405, -1);
                 exchange.close();
             }
+        } catch (IllegalArgumentException e) {
+            exchange.sendResponseHeaders(405, -1);
+            exchange.close();
         } catch (Exception e) {
             sendError(exchange);
         }

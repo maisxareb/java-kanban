@@ -3,6 +3,7 @@ package taskmanager;
 import com.sun.net.httpserver.HttpExchange;
 import com.google.gson.Gson;
 import task.Task;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -16,29 +17,31 @@ public class TasksHandler extends BaseHttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        String method = exchange.getRequestMethod();
         try {
+            HttpMethod method = HttpMethod.valueOf(exchange.getRequestMethod());
             switch (method) {
-                case "GET": {
+                case GET -> {
                     List<Task> tasks = (List<Task>) manager.getAllTasks();
                     sendText(exchange, gson.toJson(tasks));
-                    break;
                 }
-                case "POST": {
+                case POST -> {
                     String body = new String(exchange.getRequestBody().readAllBytes(), "UTF-8");
                     Task task = gson.fromJson(body, Task.class);
                     Task created = manager.createTask(task.getTitle(), task.getDescription(), task.getDuration(), task.getStartTime());
                     sendText(exchange, gson.toJson(created));
-                    break;
                 }
-                case "DELETE": {
+                case DELETE -> {
                     ((taskmanager.InMemoryTaskManager) manager).tasks.clear();
                     sendText(exchange, "All tasks deleted");
-                    break;
                 }
-                default:
+                default -> {
                     exchange.sendResponseHeaders(405, -1);
+                    exchange.close();
+                }
             }
+        } catch (IllegalArgumentException e) {
+            exchange.sendResponseHeaders(405, -1);
+            exchange.close();
         } catch (Exception e) {
             sendError(exchange);
         }

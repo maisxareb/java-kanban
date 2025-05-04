@@ -1,6 +1,7 @@
 package taskmanager;
 
 import com.sun.net.httpserver.HttpServer;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
@@ -28,7 +29,7 @@ public class HttpTaskServer {
     }
 
     public void stop() {
-      server.stop(0);
+        server.stop(0);
         System.out.println("Server stopped");
     }
 }

@@ -16,29 +16,31 @@ public class EpicsHandler extends BaseHttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        String method = exchange.getRequestMethod();
         try {
+            HttpMethod method = HttpMethod.valueOf(exchange.getRequestMethod());
             switch (method) {
-                case "GET": {
+                case GET -> {
                     List<Epic> list = (List<Epic>) manager.getAllEpics();
                     sendText(exchange, gson.toJson(list));
-                    break;
                 }
-                case "POST": {
+                case POST -> {
                     String body = new String(exchange.getRequestBody().readAllBytes(), "UTF-8");
                     Epic epic = gson.fromJson(body, Epic.class);
                     Epic created = manager.createEpic(epic.getTitle(), epic.getDescription());
                     sendText(exchange, gson.toJson(created));
-                    break;
                 }
-                case "DELETE": {
+                case DELETE -> {
                     ((taskmanager.InMemoryTaskManager) manager).epics.clear();
                     sendText(exchange, "All epics deleted");
-                    break;
                 }
-                default:
+                default -> {
                     exchange.sendResponseHeaders(405, -1);
+                    exchange.close();
+                }
             }
+        } catch (IllegalArgumentException e) {
+            exchange.sendResponseHeaders(405, -1);
+            exchange.close();
         } catch (Exception e) {
             sendError(exchange);
         }
